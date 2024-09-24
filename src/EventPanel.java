@@ -3,6 +3,7 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.time.Duration;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
 public class EventPanel extends JPanel {
@@ -11,9 +12,29 @@ public class EventPanel extends JPanel {
 
     //create event panel
     public EventPanel(Event event) {
+        //set up event panel
         this.event = event;
-        this.setPreferredSize(new Dimension(100, 100));
-        this.setBackground(Color.CYAN);
+        this.setPreferredSize(new Dimension(300, 80));
+        this.setLayout(null);
+        Color tempEventColor = new Color(255,253,208);
+        this.setBackground(tempEventColor);
+
+//        INITIAL ATTEMPT AT A COMPLETE BUTTON
+//        completeButton = new JButton("Complete");
+//        completeButton.setBounds(this.getX()/2, this.getY()-20, 10,10);
+//        completeButton.addActionListener(new ActionListener() {
+//            public void actionPerformed(ActionEvent e) {
+//                Container parent = EventPanel.this.getParent();
+//                if (parent != null) {
+//                    parent.remove(EventPanel.this);
+//                    parent.revalidate();
+//                    parent.repaint();
+//                } else {
+//                    System.out.println("Parent is null");
+//                }
+//            }
+//        });
+//        this.add(completeButton);
     }
 
     //overrridden method to correctly display event information
@@ -38,7 +59,7 @@ public class EventPanel extends JPanel {
             y += fm.getHeight() + 5;
 
             //separate date and time (to put on separate lines)
-            String date = event.getDateTime().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm"));
+            String date = event.getDateTime().format(DateTimeFormatter.ofPattern("MM/dd/yyyy HH:mm"));
             String[] splitDate = date.split(" ");
             date = splitDate[0];
             String time = splitDate[1];
@@ -78,8 +99,9 @@ public class EventPanel extends JPanel {
         }
     }
 
+    //change the background color depending on the urgency of the deadline/meeting
     public void updateUrgency() {
-        //set background color according to urgency of Event
+        //IDK :(
     }
 }
 

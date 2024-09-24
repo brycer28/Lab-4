@@ -3,6 +3,7 @@ import javax.swing.border.EmptyBorder;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.lang.reflect.Array;
 import java.time.*;
 import java.util.*;
 
@@ -11,7 +12,9 @@ public class EventListPanel extends JPanel {
     private JPanel controlPanel = new JPanel();
     private JPanel displayPanel = new JPanel();
     private JComboBox sortDropDown;
-    private JCheckBox filterDisplay;
+    private JCheckBox checkBox1 = new JCheckBox("Overdue",true);
+    private JCheckBox checkBox2 = new JCheckBox("Due Soon", true);
+    private JCheckBox checkBox3 = new JCheckBox("Due Later", true);
     private JButton addEventButton;
 
     /*
@@ -52,9 +55,6 @@ public class EventListPanel extends JPanel {
         checkBoxPanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, 40));
 
         //create controlPanel components
-        JCheckBox check1 = new JCheckBox("Overdue");
-        JCheckBox check2 = new JCheckBox("Due This Week");
-        JCheckBox check3 = new JCheckBox("IDK");
         sortDropDown = new JComboBox<>(new String[]{"Chronological", "Reverse"});
         addEventButton = new JButton("Add Event");
 
@@ -112,12 +112,29 @@ public class EventListPanel extends JPanel {
             updateDisplayPanel();
         });
 
+        //update each time filters are clicked
+        checkBox1.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                updateDisplayPanel();
+            }
+        });
+        checkBox2.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                updateDisplayPanel();
+            }
+        });
+        checkBox3.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                updateDisplayPanel();
+            }
+        });
+
         //add components to respective panels
         buttonPanel.add(addEventButton);
         comboBoxPanel.add(sortDropDown);
-        checkBoxPanel.add(check1);
-        checkBoxPanel.add(check2);
-        checkBoxPanel.add(check3);
+        checkBoxPanel.add(checkBox1);
+        checkBoxPanel.add(checkBox2);
+        checkBoxPanel.add(checkBox3);
 
         //add sub-panels to control panel
         controlPanel.add(buttonPanel);
@@ -161,25 +178,53 @@ public class EventListPanel extends JPanel {
     public void updateDisplayPanel() {
         displayPanel.removeAll();
 
+        //must create a copy arrayList so that filters don't fully delete events
         sortEvents();
         //for each event in events, redraw the event panel
         for (Event event : events) {
             //if event isn't deadline or event, don't.
             if (event instanceof Meeting || event instanceof Deadline) {
-                //create an event panel and update its urgency
-                EventPanel eventPanel = new EventPanel(event);
-                eventPanel.setPreferredSize(new Dimension(displayPanel.getWidth(), 100));
-                eventPanel.updateUrgency();
+                //if the events corresponding filter is checked, it may be displayed
+                if (filterEvent(event)) {
+                    //create an event panel and update its urgency
+                    EventPanel eventPanel = new EventPanel(event);
+                    eventPanel.setPreferredSize(new Dimension(displayPanel.getWidth(), 100));
+                    eventPanel.updateUrgency();
 
-                //add spacer then add event panel
-                displayPanel.add(Box.createVerticalStrut(8));
-                displayPanel.add(eventPanel);
+                    //add spacer then add event panel
+                    displayPanel.add(Box.createVerticalStrut(8));
+                    displayPanel.add(eventPanel);
+                } else {
+                    System.out.println(event+" is filtered. NEXT!");
+                }
             } else {
                 System.out.println("ERR BAD GRR!");
             }
         }
         repaint();
         revalidate();
+    }
+
+    public boolean filterEvent(Event event) {
+        //return boolean for if event would be filtered
+        boolean isFiltered = false;
+        if (checkBox1.isSelected()) {
+            if (event.getDateTime().isBefore(LocalDateTime.now())) {
+                isFiltered = true;
+            }
+        }
+        if (checkBox2.isSelected()) {
+            if (event.getDateTime().isAfter(LocalDateTime.now())
+            && event.getDateTime().isBefore(LocalDateTime.now().plusDays(1))) {
+                isFiltered = true;
+            }
+        }
+        if (checkBox3.isSelected()) {
+            if (event.getDateTime().isAfter(LocalDateTime.now().plusDays(1))) {
+                isFiltered = true;
+            }
+        }
+        return isFiltered;
     }
 
     public void sortEvents() {

@@ -100,8 +100,20 @@ public class EventPanel extends JPanel {
     }
 
     //change the background color depending on the urgency of the deadline/meeting
-    public void updateUrgency() {
-        //IDK :(
+    public void updateUrgency(){
+        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime eventTime = event.getDateTime();
+
+        //if event is overdue -> RED, due within 1 day -> YELLOW, or if no urgency -> GREEN
+        if(eventTime.isBefore(now)){
+            EventPanel.this.setBackground(Color.RED);
+        } else {
+            if (Duration.between(now, eventTime).toDays() < 1) {
+                EventPanel.this.setBackground(Color.YELLOW);
+            } else {
+                EventPanel.this.setBackground(Color.GREEN);
+            }
+        }
     }
 }
 

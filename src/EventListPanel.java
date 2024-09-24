@@ -88,7 +88,7 @@ public class EventListPanel extends JPanel {
                 String location;
 
                 //store data from results to create event depending on event type
-                if (!isMeeting){
+                if (!isMeeting) {
                     Deadline deadline = new Deadline(name, startDateTime);
                     events.add(deadline);
                 } else {
@@ -104,18 +104,12 @@ public class EventListPanel extends JPanel {
 
         //add action listener to JComboBox
         //will sort and re-display events in correct order
+        //NOTE: I wanted to make this into a sortEvents() function so that
+        // it could be called when new events are added, but I could not
+        // find a solution that retains the lambda function
         sortDropDown.addActionListener(e -> {
-            String choice = (String) sortDropDown.getSelectedItem();
-            switch (choice) {
-                case "Chronological":
-                    Collections.sort(events, Comparator.comparing(Event::getDateTime));
-                    updateDisplayPanel();
-                    break;
-                case "Reverse":
-                    Collections.sort(events, Comparator.comparing(Event::getDateTime).reversed());
-                    updateDisplayPanel();
-                    break;
-            }
+            sortEvents();
+            updateDisplayPanel();
         });
 
         //add components to respective panels
@@ -133,6 +127,10 @@ public class EventListPanel extends JPanel {
         controlPanel.add(checkBoxPanel);
 
         //temporary test events
+        LocalDateTime currentDateTime = LocalDateTime.now();
+        Deadline rightNow = new Deadline("NOW!!!", currentDateTime);
+        EventPanel nowPanel = new EventPanel(rightNow);
+
         LocalDateTime deadline = LocalDateTime.of(2024, 12, 15, 13, 0);
         Deadline d = new Deadline("Assembly Lab 1", deadline);
         EventPanel panel = new EventPanel(d);
@@ -140,15 +138,14 @@ public class EventListPanel extends JPanel {
         LocalDateTime deadline2 = LocalDateTime.of(2024, 12, 15, 12, 0);
         Deadline d2 = new Deadline("Cal 1 HW", deadline2);
         EventPanel panel2 = new EventPanel(d2);
-        panel2.setBackground(Color.green);
 
         LocalDateTime d3start = LocalDateTime.of(2024, 12, 22, 10, 0);
         LocalDateTime d3end = LocalDateTime.of(2024, 12, 22, 11, 0);
         String location = "MCS 338";
         Meeting d3 = new Meeting("Office Hrs", d3start, d3end, location);
         EventPanel panel3 = new EventPanel(d3);
-        panel3.setBackground(Color.red);
 
+        events.add(rightNow);
         events.add(d);
         events.add(d2);
         events.add(d3);
@@ -164,25 +161,36 @@ public class EventListPanel extends JPanel {
     public void updateDisplayPanel() {
         displayPanel.removeAll();
 
+        sortEvents();
         //for each event in events, redraw the event panel
         for (Event event : events) {
-            EventPanel eventPanel;
+            //if event isn't deadline or event, don't.
+            if (event instanceof Meeting || event instanceof Deadline) {
+                //create an event panel and update its urgency
+                EventPanel eventPanel = new EventPanel(event);
+                eventPanel.setPreferredSize(new Dimension(displayPanel.getWidth(), 100));
+                eventPanel.updateUrgency();
 
-            if (event instanceof Meeting) {
-                eventPanel = new EventPanel((Meeting) event);
-            } else if (event instanceof Deadline) {
-                eventPanel = new EventPanel((Deadline) event);
+                //add spacer then add event panel
+                displayPanel.add(Box.createVerticalStrut(8));
+                displayPanel.add(eventPanel);
             } else {
-                System.out.println("EVENT IS NOT MEETING AND/OR DEADLINE");
-                continue;
+                System.out.println("ERR BAD GRR!");
             }
-            displayPanel.add(Box.createVerticalStrut(8));
-            //set preferred size of event panel
-            eventPanel.setPreferredSize(new Dimension(displayPanel.getWidth(), 100));
-            eventPanel.updateUrgency();
-            displayPanel.add(eventPanel);
         }
         repaint();
         revalidate();
+    }
+
+    public void sortEvents() {
+        String choice = (String) sortDropDown.getSelectedItem();
+        switch (choice) {
+            case "Chronological":
+                Collections.sort(events, Comparator.comparing(Event::getDateTime));
+                break;
+            case "Reverse":
+                Collections.sort(events, Comparator.comparing(Event::getDateTime).reversed());
+                break;
+        }
     }
 }

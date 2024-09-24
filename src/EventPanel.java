@@ -18,23 +18,13 @@ public class EventPanel extends JPanel {
         this.setLayout(null);
         Color tempEventColor = new Color(255,253,208);
         this.setBackground(tempEventColor);
-
-//        INITIAL ATTEMPT AT A COMPLETE BUTTON
-//        completeButton = new JButton("Complete");
-//        completeButton.setBounds(this.getX()/2, this.getY()-20, 10,10);
-//        completeButton.addActionListener(new ActionListener() {
-//            public void actionPerformed(ActionEvent e) {
-//                Container parent = EventPanel.this.getParent();
-//                if (parent != null) {
-//                    parent.remove(EventPanel.this);
-//                    parent.revalidate();
-//                    parent.repaint();
-//                } else {
-//                    System.out.println("Parent is null");
-//                }
-//            }
-//        });
-//        this.add(completeButton);
+        completeButton = new JButton("Complete");
+        completeButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                ((Completable) event).complete();
+            }
+        });
+        this.add(completeButton);
     }
 
     //overrridden method to correctly display event information

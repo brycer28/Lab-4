@@ -175,35 +175,70 @@ public class EventListPanel extends JPanel {
 
     //function to re-display events when a new one is added/removed
     //or if the order/filters are changed
+//    public void updateDisplayPanel() {
+//        displayPanel.removeAll();
+//
+//        //must create a copy arrayList so that filters don't fully delete events
+//        sortEvents();
+//        //for each event in events, redraw the event panel
+//        for (Event event : events) {
+//            //ensure that event is instantiated and completable
+//            if (event instanceof Meeting || event instanceof Deadline) {
+//                //if event is not marked complete
+//                if (!((Completable) event).isComplete()){
+//                    //if the events corresponding filter is checked, it may be displayed
+//                    if (filterEvent(event)) {
+//                        //create an event panel and update its urgency
+//                        EventPanel eventPanel = new EventPanel(event);
+//                        eventPanel.setPreferredSize(new Dimension(displayPanel.getWidth(), 100));
+//                        eventPanel.updateUrgency();
+//
+//                        //add spacer then add event panel
+//                        displayPanel.add(Box.createVerticalStrut(8));
+//                        displayPanel.add(eventPanel);
+//                    }
+//                } else {
+//                    System.out.println(event+" is filtered. NEXT!");
+//                }
+//            } else {
+//                System.out.println("ERR BAD GRR!");
+//            }
+//        }
+//        repaint();
+//        revalidate();
+//    }
+
     public void updateDisplayPanel() {
         displayPanel.removeAll();
 
         //must create a copy arrayList so that filters don't fully delete events
         sortEvents();
-        //for each event in events, redraw the event panel
         for (Event event : events) {
-            //if event isn't deadline or event, don't.
-            if (event instanceof Meeting || event instanceof Deadline) {
-                //if the events corresponding filter is checked, it may be displayed
-                if (filterEvent(event)) {
-                    //create an event panel and update its urgency
-                    EventPanel eventPanel = new EventPanel(event);
-                    eventPanel.setPreferredSize(new Dimension(displayPanel.getWidth(), 100));
-                    eventPanel.updateUrgency();
-
-                    //add spacer then add event panel
-                    displayPanel.add(Box.createVerticalStrut(8));
-                    displayPanel.add(eventPanel);
-                } else {
-                    System.out.println(event+" is filtered. NEXT!");
-                }
-            } else {
-                System.out.println("ERR BAD GRR!");
+            //if not instance of completable, marked complete, or filtered out
+            //print event to console and DO NOT DISPLAY
+            if (!(event instanceof Completable)) {
+                System.out.println(event+" is filtered. NEXT!");
+                continue;
+            } else if (((Completable) event).isComplete()) {
+                System.out.println(event+" is marked complete. NEXT!");
+                continue;
+            } else if (!filterEvent(event)) {
+                System.out.println(event+" is filtered. NEXT!");
+                continue;
             }
+            //create an event panel and update its urgency
+            EventPanel eventPanel = new EventPanel(event);
+            eventPanel.setPreferredSize(new Dimension(displayPanel.getWidth(), 100));
+            eventPanel.updateUrgency();
+
+            //add spacer then add event panel
+            displayPanel.add(Box.createVerticalStrut(8));
+            displayPanel.add(eventPanel);
         }
         repaint();
         revalidate();
     }
+
 
     public boolean filterEvent(Event event) {
         //return boolean for if event would be filtered

@@ -151,21 +151,21 @@ public class EventListPanel extends JPanel {
 
         //temporary test events
         LocalDateTime currentDateTime = LocalDateTime.now();
-        Deadline rightNow = new Deadline("NOW!!!", currentDateTime);
+        Deadline rightNow = new Deadline("Example Deadline 1", currentDateTime);
         EventPanel nowPanel = new EventPanel(rightNow);
 
-        LocalDateTime deadline = LocalDateTime.of(2024, 12, 15, 13, 0);
-        Deadline d = new Deadline("Assembly Lab 1", deadline);
+        LocalDateTime deadline = LocalDateTime.of(2024, 10, 15, 13, 0);
+        Deadline d = new Deadline("Example Deadline 2", deadline);
         EventPanel panel = new EventPanel(d);
 
-        LocalDateTime deadline2 = LocalDateTime.of(2024, 12, 15, 12, 0);
-        Deadline d2 = new Deadline("Cal 1 HW", deadline2);
+        LocalDateTime deadline2 = LocalDateTime.of(2024, 9, 27, 12, 0);
+        Deadline d2 = new Deadline("Example Deadline 3", deadline2);
         EventPanel panel2 = new EventPanel(d2);
 
-        LocalDateTime d3start = LocalDateTime.of(2024, 12, 22, 10, 0);
-        LocalDateTime d3end = LocalDateTime.of(2024, 12, 22, 11, 0);
-        String location = "MCS 338";
-        Meeting d3 = new Meeting("Office Hrs", d3start, d3end, location);
+        LocalDateTime d3start = LocalDateTime.of(2024, 10, 22, 10, 0);
+        LocalDateTime d3end = LocalDateTime.of(2024, 10, 22, 11, 0);
+        String location = "UCA";
+        Meeting d3 = new Meeting("Example Meeting: Interview", d3start, d3end, location);
         EventPanel panel3 = new EventPanel(d3);
 
         //add preset events

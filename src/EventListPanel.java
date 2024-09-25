@@ -12,9 +12,9 @@ public class EventListPanel extends JPanel {
     private JPanel controlPanel = new JPanel();
     private JPanel displayPanel = new JPanel();
     private JComboBox sortDropDown;
-    private JCheckBox checkBox1 = new JCheckBox("Overdue",true);
-    private JCheckBox checkBox2 = new JCheckBox("Due Soon", true);
-    private JCheckBox checkBox3 = new JCheckBox("Due Later", true);
+    private JCheckBox checkBox1 = new JCheckBox("Completed",true);
+    private JCheckBox checkBox2 = new JCheckBox("Deadline", true);
+    private JCheckBox checkBox3 = new JCheckBox("Meeting", true);
     private JButton addEventButton;
 
     /*
@@ -28,18 +28,18 @@ public class EventListPanel extends JPanel {
     //create an eventslistpanel
     public EventListPanel() {
         //basic set up
-        this.setPreferredSize(new Dimension(500, 500));
+        this.setPreferredSize(new Dimension(500, 650));
         this.setBackground(Color.GRAY);
 
         //define control panel
         controlPanel.setBackground(Color.DARK_GRAY);
-        controlPanel.setPreferredSize(new Dimension(250, 500));
+        controlPanel.setPreferredSize(new Dimension(250, 650));
         controlPanel.setLayout(new BoxLayout(controlPanel, BoxLayout.Y_AXIS));
         controlPanel.setBorder(new EmptyBorder(10, 10, 10, 10));
 
         //define display panel
         displayPanel.setBackground(Color.GRAY);
-        displayPanel.setPreferredSize(new Dimension(450, 500));
+        displayPanel.setPreferredSize(new Dimension(450, 650));
         displayPanel.setLayout(new BoxLayout(displayPanel, BoxLayout.Y_AXIS));
 
         //create panels to hold components
@@ -55,7 +55,7 @@ public class EventListPanel extends JPanel {
         checkBoxPanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, 40));
 
         //create controlPanel components
-        sortDropDown = new JComboBox<>(new String[]{"Chronological", "Reverse"});
+        sortDropDown = new JComboBox<>(new String[]{"Name", "RName", "Date", "RDate"});
         addEventButton = new JButton("Add Event");
 
         //add event listener to "ADD EVENT" button
@@ -75,7 +75,6 @@ public class EventListPanel extends JPanel {
                     System.out.println("No results found");
                     return;
                 }
-                System.out.println(Arrays.toString(results));
 
                 //boolean to determine if event is meeting
                 Boolean isMeeting = results[0].equals("Meeting");
@@ -104,11 +103,7 @@ public class EventListPanel extends JPanel {
 
         //add action listener to JComboBox
         //will sort and re-display events in correct order
-        //NOTE: I wanted to make this into a sortEvents() function so that
-        // it could be called when new events are added, but I could not
-        // find a solution that retains the lambda function
         sortDropDown.addActionListener(e -> {
-            sortEvents();
             updateDisplayPanel();
         });
 
@@ -136,12 +131,23 @@ public class EventListPanel extends JPanel {
         checkBoxPanel.add(checkBox2);
         checkBoxPanel.add(checkBox3);
 
+        //create note panel to display at bottom of control panel
+        //will explain some features that don't fully work
+        JPanel notePanel = new JPanel();
+        notePanel.setBackground(Color.GRAY);
+        notePanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, 40));
+        notePanel.setLayout(new BorderLayout());
+        JLabel noteLabel = new JLabel("Read README.md on GitHub please");
+        notePanel.add(noteLabel, BorderLayout.CENTER);
+
         //add sub-panels to control panel
         controlPanel.add(buttonPanel);
         controlPanel.add(Box.createVerticalStrut(8));
         controlPanel.add(comboBoxPanel);
         controlPanel.add(Box.createVerticalStrut(8));
         controlPanel.add(checkBoxPanel);
+        controlPanel.add(Box.createVerticalStrut(8));
+        controlPanel.add(notePanel);
 
         //temporary test events
         LocalDateTime currentDateTime = LocalDateTime.now();
@@ -162,65 +168,35 @@ public class EventListPanel extends JPanel {
         Meeting d3 = new Meeting("Office Hrs", d3start, d3end, location);
         EventPanel panel3 = new EventPanel(d3);
 
+        //add preset events
         events.add(rightNow);
         events.add(d);
         events.add(d2);
         events.add(d3);
         updateDisplayPanel();
 
+        //create JScrollPane for displayPanel
+        JScrollPane scrollPane = new JScrollPane(displayPanel);
+
         //add components to eventlistpanel
         this.add(controlPanel);
-        this.add(displayPanel);
+        this.add(scrollPane);
     }
 
-    //function to re-display events when a new one is added/removed
-    //or if the order/filters are changed
-//    public void updateDisplayPanel() {
-//        displayPanel.removeAll();
-//
-//        //must create a copy arrayList so that filters don't fully delete events
-//        sortEvents();
-//        //for each event in events, redraw the event panel
-//        for (Event event : events) {
-//            //ensure that event is instantiated and completable
-//            if (event instanceof Meeting || event instanceof Deadline) {
-//                //if event is not marked complete
-//                if (!((Completable) event).isComplete()){
-//                    //if the events corresponding filter is checked, it may be displayed
-//                    if (filterEvent(event)) {
-//                        //create an event panel and update its urgency
-//                        EventPanel eventPanel = new EventPanel(event);
-//                        eventPanel.setPreferredSize(new Dimension(displayPanel.getWidth(), 100));
-//                        eventPanel.updateUrgency();
-//
-//                        //add spacer then add event panel
-//                        displayPanel.add(Box.createVerticalStrut(8));
-//                        displayPanel.add(eventPanel);
-//                    }
-//                } else {
-//                    System.out.println(event+" is filtered. NEXT!");
-//                }
-//            } else {
-//                System.out.println("ERR BAD GRR!");
-//            }
-//        }
-//        repaint();
-//        revalidate();
-//    }
-
+    //refresh the displayPanel to properly match filters or sorting option
     public void updateDisplayPanel() {
+        //clear display so each may be redisplayed properly
         displayPanel.removeAll();
 
-        //must create a copy arrayList so that filters don't fully delete events
+        //sort events list before displaying
         sortEvents();
+
+        //for each event, check if it is completable, and check its filters
         for (Event event : events) {
-            //if not instance of completable, marked complete, or filtered out
+            //if not instance of completable, or filtered out
             //print event to console and DO NOT DISPLAY
             if (!(event instanceof Completable)) {
                 System.out.println(event+" is filtered. NEXT!");
-                continue;
-            } else if (((Completable) event).isComplete()) {
-                System.out.println(event+" is marked complete. NEXT!");
                 continue;
             } else if (!filterEvent(event)) {
                 System.out.println(event+" is filtered. NEXT!");
@@ -228,7 +204,7 @@ public class EventListPanel extends JPanel {
             }
             //create an event panel and update its urgency
             EventPanel eventPanel = new EventPanel(event);
-            eventPanel.setPreferredSize(new Dimension(displayPanel.getWidth(), 100));
+            eventPanel.setPreferredSize(new Dimension(displayPanel.getWidth(), 80));
             eventPanel.updateUrgency();
 
             //add spacer then add event panel
@@ -239,38 +215,53 @@ public class EventListPanel extends JPanel {
         revalidate();
     }
 
-
+    //filter out unwanted events, return true if event should be displayed
     public boolean filterEvent(Event event) {
         //return boolean for if event would be filtered
         boolean isFiltered = false;
+        //check if event is complete, meeting, or deadline
         if (checkBox1.isSelected()) {
-            if (event.getDateTime().isBefore(LocalDateTime.now())) {
+            if (((Completable) event).isComplete()) {
                 isFiltered = true;
             }
         }
         if (checkBox2.isSelected()) {
-            if (event.getDateTime().isAfter(LocalDateTime.now())
-            && event.getDateTime().isBefore(LocalDateTime.now().plusDays(1))) {
+            if (!((Completable) event).isComplete() && event instanceof Deadline) {
                 isFiltered = true;
             }
         }
         if (checkBox3.isSelected()) {
-            if (event.getDateTime().isAfter(LocalDateTime.now().plusDays(1))) {
+            if (!((Completable) event).isComplete() && event instanceof Meeting) {
                 isFiltered = true;
             }
         }
         return isFiltered;
     }
 
+    //sort the list of events based on the state of the JComboBox
     public void sortEvents() {
         String choice = (String) sortDropDown.getSelectedItem();
-        switch (choice) {
-            case "Chronological":
-                Collections.sort(events, Comparator.comparing(Event::getDateTime));
-                break;
-            case "Reverse":
-                Collections.sort(events, Comparator.comparing(Event::getDateTime).reversed());
-                break;
+
+        //sort events either name order, reverse name, date order, or reverse date
+        if (choice != null) {
+            switch (choice) {
+                case "Name":
+                    Collections.sort(events, Comparator.comparing(Event::getName));
+                    break;
+                case "Name-Reverse":
+                    Collections.sort(events, Comparator.comparing(Event::getName));
+                    Collections.reverse(events);
+                    break;
+                case "Date":
+                    Collections.sort(events, Comparator.comparing(Event::getDateTime));
+                    break;
+                case "Date-Reverse":
+                    Collections.sort(events, Comparator.comparing(Event::getDateTime));
+                    Collections.reverse(events);
+                    break;
+            }
         }
+        revalidate();
+        repaint();
     }
 }

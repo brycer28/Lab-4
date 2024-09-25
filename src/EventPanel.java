@@ -15,16 +15,20 @@ public class EventPanel extends JPanel {
         //set up event panel
         this.event = event;
         this.setPreferredSize(new Dimension(300, 80));
-        this.setLayout(null);
+        this.setLayout(new BorderLayout());
         Color tempEventColor = new Color(255,253,208);
         this.setBackground(tempEventColor);
+        Container parent = this.getParent();
         completeButton = new JButton("Complete");
+
+        //this implementation works but does not auto-remove completed events
+        //I could not find a way to call updateDisplayPanel from this class
         completeButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 ((Completable) event).complete();
             }
         });
-        this.add(completeButton);
+        this.add(completeButton, BorderLayout.EAST);
     }
 
     //overrridden method to correctly display event information
@@ -94,14 +98,19 @@ public class EventPanel extends JPanel {
         LocalDateTime now = LocalDateTime.now();
         LocalDateTime eventTime = event.getDateTime();
 
+        //create custom color objects
+        Color OVERDUE = new Color(247, 65,65);
+        Color SOON = new Color(244,239,145);
+        Color LATER = new Color(132,240,108);
+
         //if event is overdue -> RED, due within 1 day -> YELLOW, or if no urgency -> GREEN
         if(eventTime.isBefore(now)){
-            EventPanel.this.setBackground(Color.RED);
+            EventPanel.this.setBackground(OVERDUE);
         } else {
             if (Duration.between(now, eventTime).toDays() < 1) {
-                EventPanel.this.setBackground(Color.YELLOW);
+                EventPanel.this.setBackground(SOON);
             } else {
-                EventPanel.this.setBackground(Color.GREEN);
+                EventPanel.this.setBackground(LATER);
             }
         }
     }

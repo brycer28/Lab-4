@@ -9,9 +9,9 @@ public class Deadline extends Event implements Completable{
         this.setDateTime(deadline);
     };
 
-    //mark this deadline complete
+    //"toggle" the complete boolean, allows meetings to be uncompleted
     public void complete() {
-        this.complete = true;
+        this.complete = !complete;
     }
 
     //check if deadline is complete

@@ -10,7 +10,14 @@ Event implements Comparable<Event> {
     public String getName() {return this.name;}
 
     //get startDateTime of this event
-    public LocalDateTime getDateTime() {return this.dateTime;};
+    public LocalDateTime getDateTime() {
+        if (this.dateTime != null) {
+            return this.dateTime;
+        } else {
+            this.dateTime = LocalDateTime.now();
+            return this.dateTime;
+        }
+    };
 
     //set name of this event
     public void setName(String name){

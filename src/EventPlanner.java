@@ -2,6 +2,10 @@ import javax.swing.*;
 import java.awt.*;
 import java.time.LocalDateTime;
 
+/*
+TO-DO:
+*/
+
 public class EventPlanner {
     public static void main(String[] args) {
         //set up frame

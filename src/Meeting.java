@@ -14,9 +14,9 @@ public class Meeting extends Event implements Completable {
         this.setLocation(location);
     }
 
-    //mark this meeting complete
+    //"toggle" the complete boolean, allows meetings to be uncompleted
     public void complete() {
-        this.complete = true;
+        this.complete = !complete;
     }
 
     //check if this event is complete
@@ -25,15 +25,10 @@ public class Meeting extends Event implements Completable {
     }
 
     //return the endDateTime of this meeting
-    public LocalDateTime getEndDateTime() {
-        return this.endDateTime;
-    }
+    public LocalDateTime getEndDateTime() {return this.endDateTime;}
 
     //return the duration of this meeting
-    public Duration getDuration() {
-        Duration duration = Duration.between(this.getDateTime(), this.getEndDateTime());
-        return duration;
-    }
+    public Duration getDuration() {return Duration.between(this.getDateTime(), this.getEndDateTime());}
 
     //return the location of this meeting
     public String getLocation() {

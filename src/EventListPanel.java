@@ -7,7 +7,7 @@ import java.lang.reflect.Array;
 import java.time.*;
 import java.util.*;
 
-public class EventListPanel extends JPanel {
+public class EventListPanel extends JPanel implements EventObserver {
     private ArrayList<Event> events = new ArrayList<>();
     private JPanel controlPanel = new JPanel();
     private JPanel displayPanel = new JPanel();
@@ -63,41 +63,9 @@ public class EventListPanel extends JPanel {
         JFrame parentFrame = (JFrame) SwingUtilities.getAncestorOfClass(JFrame.class, this);
         addEventButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                //create dialog modal
                 AddEventModal dialog = new AddEventModal(parentFrame);
+                dialog.addObserver(EventListPanel.this);
                 dialog.setVisible(true);
-
-                //get information from jdialog
-                String[] results = dialog.getResults();
-
-                //check that results exist
-                if (results == null) {
-                    System.out.println("No results found");
-                    return;
-                }
-
-                //boolean to determine if event is meeting
-                Boolean isMeeting = results[0].equals("Meeting");
-                String name = results[1];
-                LocalDate date = LocalDate.parse(results[2]);
-                LocalTime startTime = LocalTime.parse(results[3]);
-                LocalDateTime startDateTime = LocalDateTime.of(date, startTime);
-                LocalTime endTime;
-                LocalDateTime endDateTime;
-                String location;
-
-                //store data from results to create event depending on event type
-                if (!isMeeting) {
-                    Deadline deadline = new Deadline(name, startDateTime);
-                    events.add(deadline);
-                } else {
-                    endTime = LocalTime.parse(results[4]);
-                    location = results[5];
-                    endDateTime = LocalDateTime.of(date, endTime);
-                    Meeting meeting = new Meeting(name, startDateTime, endDateTime, location);
-                    events.add(meeting);
-                }
-                updateDisplayPanel();
             }
         });
 
@@ -263,5 +231,10 @@ public class EventListPanel extends JPanel {
         }
         revalidate();
         repaint();
+    }
+
+    public void onEventAdded(Event event) {
+        events.add(event);
+        updateDisplayPanel();
     }
 }

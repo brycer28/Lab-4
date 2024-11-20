@@ -3,10 +3,12 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 
 public class AddEventModal extends JDialog {
     //array of strings to hold information for creating an event
     private String[] results = new String[6];
+    private ArrayList<EventObserver> observers = new ArrayList<>();
 
     //create dialog box
     public AddEventModal(Frame parent) {
@@ -90,6 +92,8 @@ public class AddEventModal extends JDialog {
                     results[4] = endTimeField.getText();
                     results[5] = locationField.getText();
                 }
+                Event event = EventFactory.createEvent(results);
+                notifyObservers(event);
                 dispose();
             }
         });
@@ -104,5 +108,15 @@ public class AddEventModal extends JDialog {
     //returns the private results array so an event can be created
     public String[] getResults() {
         return results;
+    }
+
+    public void addObserver(EventObserver observer) {
+        observers.add(observer);
+    }
+
+    public void notifyObservers(Event event) {
+        for (EventObserver observer : observers) {
+            observer.onEventAdded(event);
+        }
     }
 }
